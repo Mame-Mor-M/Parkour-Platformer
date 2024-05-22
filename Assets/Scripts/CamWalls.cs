@@ -17,4 +17,5 @@ public class CamWalls : MonoBehaviour
     {
         rb.velocity = new Vector2(wallSpeed, 0);
     }
+
 }

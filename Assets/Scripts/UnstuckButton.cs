@@ -5,12 +5,12 @@ using UnityEngine.SceneManagement;
 
 public class UnstuckButton : MonoBehaviour
 {
-    [SerializeField] Transform player;
-    [SerializeField] Transform respawnPoint;
+    [SerializeField] Rigidbody2D rb;
+    [SerializeField] float propulsion;
     // Start is called before the first frame update
     void Start()
     {
-        
+        rb = GetComponent<Rigidbody2D>();
     }
 
     // Update is called once per frame

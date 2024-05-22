@@ -6,9 +6,18 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/Main Menu.unity
+    guid: dcaf22a07f5dbe64d847b2390977a7c3
+  - enabled: 1
     path: Assets/Scenes/MainScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
-    path: Assets/Scenes/FightScene.unity
-    guid: 0118c8edfe7e195428524353a160759d
+    path: Assets/Scenes/JumpKing Scene.unity
+    guid: d264296616c95a44689c21709f174856
+  - enabled: 1
+    path: Assets/Scenes/BossScene.unity
+    guid: 86167c80cc30438499bc273f48a0c6e8
+  - enabled: 1
+    path: Assets/Scenes/EndScene.unity
+    guid: 4d33bcc047351b243b40b6524301691a
   m_configObjects: {}

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Animations;
 
@@ -14,6 +15,8 @@ public class PlayerMovement : MonoBehaviour
     //Movement stuffs
     [SerializeField] float moveSpeed;
     [SerializeField] float runSpeed;
+    [SerializeField] float regSpeed;
+    [SerializeField] float slowSpeed;
     bool isRunning;
     bool facingRight = true;
 
@@ -24,6 +27,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] LayerMask groundLayer;
     [SerializeField] Transform checkFeet;
     [SerializeField] float feetColliderRadius;
+    [SerializeField] float downForce;
 
     //Jump duration handler
     [SerializeField] float jumpTime;
@@ -44,12 +48,30 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] SpriteRenderer slideRenderer;
     private bool isSliding;
 
+    //Swinging stuffs
+    [SerializeField] Swinging swingScript;
 
+    //Other stuffs
+    [SerializeField] Transform throwPos;
+    [SerializeField] float regThrowY;
+    [SerializeField] float crouchThrowY;
+
+    //Particle stuffs
+    [SerializeField] ParticleSystem effects;
+
+    public AudioSource hurtSound;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
+        regThrowY = throwPos.position.y;
+        crouchThrowY = throwPos.position.y * 1.4f;
+        regSpeed = moveSpeed;
+        canAttack = true;
+        
+
+
     }
 
     // Update is called once per frame
@@ -57,6 +79,9 @@ public class PlayerMovement : MonoBehaviour
     {
         PlayerInputs();
         //JumpInputs();
+        rb.gravityScale = 3;
+
+
     }
 
     void FixedUpdate()
@@ -68,6 +93,7 @@ public class PlayerMovement : MonoBehaviour
 
     void PlayerInputs()
     {
+        Collider2D[] swingRadius = Physics2D.OverlapCircleAll(attackPoint.position, attackRange);
         input.x = Input.GetAxisRaw("Horizontal");
 
         //Movement animation stuffs.
@@ -75,14 +101,19 @@ public class PlayerMovement : MonoBehaviour
         if (input.x > 0 && !facingRight)
         {
             Flip();
+
         }
 
         else if (input.x < 0)
         {
-            moveSpeed = 1.2f;
+            moveSpeed = slowSpeed;
+        }
+        else
+        {
+            moveSpeed = regSpeed;
         }
 
-        if (Input.GetKey(KeyCode.LeftShift))
+        if (Input.GetKey(KeyCode.LeftShift) || (Input.GetKey(KeyCode.D)))
         {
             isRunning = true;
         }
@@ -92,17 +123,16 @@ public class PlayerMovement : MonoBehaviour
         }
 
         grounded = Physics2D.OverlapCircle(checkFeet.position, feetColliderRadius, groundLayer);
-        /*if(!grounded)
+
+        if ((Input.GetButtonDown("Jump") || Input.GetKeyDown(KeyCode.W)) && grounded)
         {
-            jumping = false;
-        }*/
-        if (Input.GetButtonDown("Jump") && grounded)
-        {
+            animator.SetBool("isSlide", false);
             jumping = true;
             jumpTimeCounter = jumpTime;
         }
-        if (Input.GetButton("Jump") && jumping)
+        if ((Input.GetButton("Jump") || Input.GetKey(KeyCode.W)) && jumping)
         {
+            animator.SetBool("isSlide", false);
             if (jumpTimeCounter > 0)
             {
                 jumpTimeCounter -= Time.deltaTime;
@@ -112,20 +142,24 @@ public class PlayerMovement : MonoBehaviour
                 jumping = false;
             }
         }
-        if (Input.GetButtonUp("Jump"))
+        if (Input.GetButtonUp("Jump") || Input.GetKeyUp(KeyCode.W))
         {
             jumping = false;
         }
 
+        if(input.x != 0 && grounded)
+        {
+            MovingEffects();
+        }
+
         //Attacking animation.
         attackTime = attackRate;
-        if (Input.GetMouseButtonDown(0))
+        if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.J)) && canAttack == true)
         {
-            if (attackTime > 0)
-            {
-                canAttack = false;
-            }
+            animator.SetBool("isSlide", false);
             animator.SetTrigger("Attack");
+            StartCoroutine("swordSwing");
+            
         }
         if (Input.GetMouseButtonUp(0))
         {
@@ -133,21 +167,26 @@ public class PlayerMovement : MonoBehaviour
         }
         attackTime -= Time.deltaTime;
 
-        if (Input.GetKeyDown(KeyCode.C) && !isSliding)
+        if (Input.GetKeyDown(KeyCode.C) || (Input.GetKeyDown(KeyCode.S)) && !isSliding && grounded)
         {
             Slide();
+        }
+
+        if (Input.GetKeyDown(KeyCode.S) && !grounded)
+        {
+            forceDown();
         }
     }
 
 
     void Move()
     {
-        if (isRunning)
+        if (isRunning && swingScript.isSwinging == false)
         {
             //rb.MovePosition(rb.position + input * runSpeed * Time.deltaTime);
             rb.velocity = new Vector2(runSpeed, rb.velocity.y);
         }
-        if (!isRunning)
+        if (!isRunning && swingScript.isSwinging == false)
         {
             //rb.MovePosition(rb.position + input * moveSpeed * Time.deltaTime);
             rb.velocity = new Vector2(moveSpeed, rb.velocity.y);
@@ -156,14 +195,21 @@ public class PlayerMovement : MonoBehaviour
 
     void Jump()
     {
+        
         if (jumping)
         {
+            
             Debug.Log("Jumped!");
             rb.velocity = Vector2.up * jumpForce;
             //rb.MovePosition(rb.position + input * jumpForce * Time.deltaTime);
             //rb.velocity = new Vector2(rb.velocity.x, jumpForce) * Time.deltaTime;
         }
 
+    }
+
+    void forceDown()
+    {
+        rb.velocity = Vector2.down * downForce;
     }
 
     void Attack()
@@ -183,6 +229,7 @@ public class PlayerMovement : MonoBehaviour
     void Slide()
     {
         isSliding = true;
+        canAttack = false; // Prevents sword swing while sliding
 
         animator.SetBool("isSlide", true);
 
@@ -191,24 +238,51 @@ public class PlayerMovement : MonoBehaviour
         slideCollider.enabled = true;
         slideRenderer.enabled = true; // Switch to sliding stance
 
+        throwPos.position = new Vector2(throwPos.position.x, crouchThrowY);
 
         rb.AddForce(Vector2.right * slideSpeed);
         StartCoroutine("stopSlide"); // Begin 'stop slide' event 
     }
 
+    void MovingEffects()
+    {
+        effects.Play();
+    }
+
     IEnumerator stopSlide()
     {
         
-        yield return new WaitForSeconds(0.8f); // Stop slide after 0.8 seconds
-        
+        yield return new WaitForSeconds(0.8f); // Stop slide after 0.95 seconds
+
         animator.SetBool("isSlide", false);
         regCollider.enabled = true;
         sr.enabled = true;
         slideCollider.enabled = false;
         slideRenderer.enabled = false;  // Return to default stance
-
+        throwPos.position = new Vector2(throwPos.position.x, regThrowY);
+        canAttack = true; // Re-enables sword swing
         yield return new WaitForSeconds(0.8f); // 0.8 second slide cooldown
         isSliding = false;
+
+    }
+
+    IEnumerator swordSwing()
+    {
+        Collider2D[] swingRadius = Physics2D.OverlapCircleAll(attackPoint.position, attackRange);
+
+
+        yield return new WaitForSeconds(0.15f);
+        foreach (Collider2D collider in swingRadius)
+        {
+
+            if (collider.CompareTag("Normal"))
+            {
+                Destroy(collider.gameObject);
+            }
+
+        }
+        yield return new WaitForSeconds(0.15f);
+        animator.SetTrigger("Attack Stopped");
     }
 
     void OnDrawGizmosSelected()
@@ -219,5 +293,13 @@ public class PlayerMovement : MonoBehaviour
         }
 
         Gizmos.DrawWireSphere(attackPoint.position, attackRange);
+    }
+
+    void OnTriggerEnter2D(Collider2D trig)
+    {
+        if(trig.gameObject.CompareTag("Laser") || trig.gameObject.CompareTag("Normal"))
+        {
+            hurtSound.Play();
+        }
     }
 }

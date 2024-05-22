@@ -5,6 +5,17 @@ TagManager:
   serializedVersion: 2
   tags:
   - Borders
+  - Throwable
+  - Normal
+  - Icy
+  - Ground
+  - Trap
+  - Wall
+  - CheckPoint
+  - Spike1
+  - Spike2
+  - Spike3
+  - Laser
   layers:
   - Default
   - TransparentFX
@@ -14,10 +25,10 @@ TagManager:
   - UI
   - Ground
   - Player
-  - 
-  - 
-  - 
-  - 
+  - Icy Layer
+  - Trap
+  - Wall
+  - Background
   - 
   - 
   - 
@@ -39,11 +50,35 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Background
+    uniqueID: 381558911
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Sky
+    uniqueID: 3292794547
+    locked: 0
+  - name: Skyline
+    uniqueID: 2369412875
+    locked: 0
+  - name: Windows
+    uniqueID: 2372324899
+    locked: 0
   - name: Floor
     uniqueID: 3155456293
+    locked: 0
+  - name: UI/HUD
+    uniqueID: 23638945
+    locked: 0
+  - name: Wall
+    uniqueID: 2501557383
+    locked: 0
+  - name: Spikes
+    uniqueID: 36352829
+    locked: 0
+  - name: Ground
+    uniqueID: 2799649587
     locked: 0
   - name: Player
     uniqueID: 91660535
