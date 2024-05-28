@@ -12,8 +12,8 @@
 11. Assisted in narrative development process
 
 ## Credits to:
-1. Derman Cetinalp
-2. Zhihan Ru
-3. Cole George
-4. Chukwuyem
+Derman Cetinalp
+Zhihan Ru
+Cole George
+Chukwuyem
 For the development of game art, music, gameplay programming of levels 2 & 3 and narrative ideas
