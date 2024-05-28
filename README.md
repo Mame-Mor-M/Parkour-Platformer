@@ -1,4 +1,4 @@
-#Personally responsible for
+##Personally responsible for
 1. Movement programming for runner levels
 2. Gate code for runner levels
 3. Damage implementation for runner levels & and shuriken throw mechanic
