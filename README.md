@@ -13,7 +13,11 @@
 
 ## Credits to:
 Derman Cetinalp
+
 Zhihan Ru
+
 Cole George
+
 Chukwuyem
-For the development of game art, music, gameplay programming of levels 2 & 3 and narrative ideas
+
+### For the development of game art, music, gameplay programming of levels 2 & 3 and narrative ideas
