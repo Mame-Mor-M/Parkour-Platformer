@@ -3,12 +3,13 @@
 2. Grapple mechanic
 3. Gate code for runner levels
 4. Damage implementation
-5. Combat sword swing and shuriken throw mechanic
-6. Basic level design for runner level 1 
-7. Created Main Menu screen code, credits menu + Loading screens, and intro poem
-8. Created end-game sequence
-9. Fine-tuning gameplay & bug-fixing
-10. Assisted in narrative development process
+5. Enemy implementation
+6. Combat sword swing and shuriken throw mechanic
+7. Basic level design for runner level 1 
+8. Created Main Menu screen code, credits menu + Loading screens, and intro poem
+9. Created end-game sequence
+10. Fine-tuning gameplay & bug-fixing
+11. Assisted in narrative development process
 
 ## Credits to:
 1. Derman Cetinalp
